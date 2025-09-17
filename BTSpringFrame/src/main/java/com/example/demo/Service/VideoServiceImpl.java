@@ -29,6 +29,11 @@ public class VideoServiceImpl implements VideoService {
     public Optional<Video> findById(int id) {
         return videoRepository.findById(id);
     }
+    
+    @Override
+    public List<Video> findByCategoryId(int categoryId) {
+        return videoRepository.findByCategoryCategoryID(categoryId);
+    }
 
     @Override
     public Video save(Video video) {

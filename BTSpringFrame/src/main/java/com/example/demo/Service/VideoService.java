@@ -18,4 +18,5 @@ public interface VideoService {
     Page<Video> findByTitleContaining(String title, Pageable pageable);
     List<Video> findByCategory_CategoryNameContaining(String categoryName);
     Page<Video> findByCategory_CategoryNameContaining(String categoryName, Pageable pageable);
+    List<Video> findByCategoryId(int categoryId);
    }

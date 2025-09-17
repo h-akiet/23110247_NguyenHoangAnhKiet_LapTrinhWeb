@@ -1,12 +1,14 @@
+```jsp
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>List Categories</title>
+    <title>Danh Sách Danh Mục</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
@@ -19,27 +21,35 @@
 </head>
 <body>
     <div class="header-section">
-        <h4><i class="fas fa-list"></i> List Categories</h4>
+        <h4><i class="fas fa-list"></i> Danh Sách Danh Mục</h4>
     </div>
 
     <section class="row">
         <div class="col mt-4">
             <div class="card">
                 <div class="card-header">
-                    <h4>List Categories</h4>
+                    <h4>Danh Sách Danh Mục</h4>
                     <form action="${pageContext.request.contextPath}/admin/categories/search" method="get" class="form-inline">
                         <div class="form-group mr-2">
-                            <input type="text" name="name" class="form-control" placeholder="Search by name..." value="${searchName}">
+                            <input type="text" name="name" class="form-control" placeholder="Tìm kiếm theo tên..." value="${searchName}">
                         </div>
-                        <button type="submit" class="btn btn-outline-primary"><i class="fas fa-search"></i> Search</button>
-                        <a href="${pageContext.request.contextPath}/admin/categories" class="btn btn-outline-secondary ml-2"><i class="fas fa-times"></i> Clear</a>
+                        <button type="submit" class="btn btn-outline-primary"><i class="fas fa-search"></i> Tìm kiếm</button>
+                        <a href="${pageContext.request.contextPath}/admin/categories" class="btn btn-outline-secondary ml-2"><i class="fas fa-times"></i> Xóa bộ lọc</a>
                     </form>
-                    <a href="${pageContext.request.contextPath}/admin/categories/add" class="btn btn-success float-right"><i class="fas fa-plus"></i> Add New Category</a>
+                    <a href="${pageContext.request.contextPath}/admin/categories/add" class="btn btn-success float-right"><i class="fas fa-plus"></i> Thêm Danh Mục Mới</a>
                 </div>
                 <div class="card-body">
                     <c:if test="${message != null}">
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <strong>Success!</strong> ${message}
+                            <strong>Thành công!</strong> ${message}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </c:if>
+                    <c:if test="${error != null}">
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <strong>Lỗi!</strong> ${error}
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -48,17 +58,17 @@
                     <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>Category ID</th>
-                                <th>Category Name</th>
-                                <th>Images</th>
-                              
+                                <th>Mã Danh Mục</th>
+                                <th>Tên Danh Mục</th>
+                                <th>Hình Ảnh</th>
+                                <th>Hành Động</th>
                             </tr>
                         </thead>
                         <tbody>
                             <c:choose>
                                 <c:when test="${empty categories}">
                                     <tr>
-                                        <td colspan="4" class="text-center">No categories found.</td>
+                                        <td colspan="4" class="text-center">Không tìm thấy danh mục nào.</td>
                                     </tr>
                                 </c:when>
                                 <c:otherwise>
@@ -66,11 +76,25 @@
                                         <tr>
                                             <td>${category.categoryID}</td>
                                             <td>${category.categoryName}</td>
-                                            <td>${category.images}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${empty category.images}">
+                                                        <img height="150" width="200" src="${pageContext.request.contextPath}/images/default.jpg" alt="Không có hình ảnh" />
+                                                    </c:when>
+                                                    <c:when test="${fn:startsWith(category.images, 'https')}">
+                                                        <c:set var="imgUrl" value="${category.images}" />
+                                                        <img height="150" width="200" src="${imgUrl}" alt="Hình ảnh danh mục" onerror="this.src='${pageContext.request.contextPath}/images/default.jpg'" />
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <c:url value="/image?fname=${category.images}" var="imgUrl" />
+                                                        <img height="150" width="200" src="${imgUrl}" alt="Hình ảnh danh mục" onerror="this.src='${pageContext.request.contextPath}/images/default.jpg'" />
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
                                             <td class="action-buttons">
                                                 <a href="${pageContext.request.contextPath}/admin/categories/view/${category.categoryID}" class="btn btn-sm btn-outline-info"><i class="fa fa-info-circle"></i></a>
                                                 <a href="${pageContext.request.contextPath}/admin/categories/edit/${category.categoryID}" class="btn btn-sm btn-outline-warning"><i class="fa fa-edit"></i></a>
-                                                <a href="${pageContext.request.contextPath}/admin/categories/delete/${category.categoryID}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?');"><i class="fa fa-trash"></i></a>
+                                                <a href="${pageContext.request.contextPath}/admin/categories/delete/${category.categoryID}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa?');"><i class="fa fa-trash"></i></a>
                                             </td>
                                         </tr>
                                     </c:forEach>
@@ -87,7 +111,7 @@
     </section>
 
     <div class="footer-section">
-        <p>&copy; 2025 Your Application. All rights reserved.</p>
+        <p>&copy; 2025 Ứng dụng của bạn. Bảo lưu mọi quyền.</p>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -95,3 +119,4 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+```
