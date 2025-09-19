@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout-admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Categories</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .pagination {
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .table thead th {
+            background-color: #f8f9fa; /* Light gray header */
+        }
+        .table td, .table th {
+            vertical-align: middle; /* Center content vertically */
+        }
+        .action-buttons a {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <section class="row">
+            <div class="col mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Search Results for Categories</h4>
+                        <form th:action="@{/admin/categories/search}" method="get" class="form-inline">
+                            <div class="form-group mr-2">
+                                <input type="text" name="name" class="form-control" placeholder="Search by name..." th:value="${param.name}">
+                            </div>
+                            <button type="submit" class="btn btn-outline-primary"><i class="fas fa-search"></i> Search</button>
+                            <a th:href="@{/admin/categories}" class="btn btn-outline-secondary ml-2"><i class="fas fa-times"></i> Clear</a>
+                        </form>
+                        <a th:href="@{/admin/categories/add}" class="btn btn-success float-right"><i class="fas fa-plus"></i> Add New Category</a>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Category ID</th>
+                                    <th>Category Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(categories)}">
+                                    <td colspan="3" class="text-center">No categories found matching your criteria.</td>
+                                </tr>
+                                <tr th:each="category : ${categories}">
+                                    <td th:text="${category.id}"></td>
+                                    <td th:text="${category.categoryName}"></td>
+                                    <td class="action-buttons">
+                                        <a th:href="@{/admin/categories/view/{id}(id=${category.id})}" class="btn btn-sm btn-outline-info" title="View"><i class="fa fa-info-circle"></i></a>
+                                        <a th:href="@{/admin/categories/edit/{id}(id=${category.id})}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fa fa-edit"></i></a>
+                                        <a th:href="@{/admin/categories/delete/{id}(id=${category.id})}" class="btn btn-sm btn-outline-danger" title="Delete" th:onClick="'return confirm(\'Are you sure you want to delete this category?\');'"><i class="fa fa-trash"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination controls can be added here if needed -->
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

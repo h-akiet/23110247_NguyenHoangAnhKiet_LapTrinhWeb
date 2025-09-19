@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout-admin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm Danh Mục Mới</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .card {
+            margin-top: 20px;
+        }
+        .card-header h2 {
+            margin-bottom: 0;
+        }
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-footer a {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div layout:fragment="content">
+        <section class="row">
+            <div class="col-6 offset-3 mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Thêm Danh Mục Mới</h2>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/categories/saveOrUpdate}" method="POST" th:object="${category}">
+                            <div class="mb-3">
+                                <label for="categoryName" class="form-label">Tên Danh Mục:</label>
+                                <input type="text" class="form-control" id="categoryName" th:field="*{categoryName}" aria-describedby="nameId" placeholder="Nhập tên danh mục"/>
+                                <span th:if="${#fields.hasErrors('categoryName')}" class="text-danger" th:errors="*{categoryName}"></span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="images" class="form-label">URL Hình Ảnh:</label>
+                                <input type="text" class="form-control" id="images" th:field="*{images}" aria-describedby="imagesId" placeholder="Nhập URL hình ảnh"/>
+                                <span th:if="${#fields.hasErrors('images')}" class="text-danger" th:errors="*{images}"></span>
+                            </div>
+                            <div class="card-footer text-muted">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <span>Lưu</span></button>
+                                <a th:href="@{/admin/categories/add}" class="btn btn-secondary"><i class="fas fa-plus"></i> Mới</a>
+                                <a th:href="@{/admin/categories}" class="btn btn-info"><i class="fas fa-bars"></i> Danh Sách Danh Mục</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
