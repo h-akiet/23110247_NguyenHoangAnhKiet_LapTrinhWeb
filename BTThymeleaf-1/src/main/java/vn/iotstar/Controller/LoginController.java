@@ -20,9 +20,12 @@ public class LoginController {
 
     @GetMapping("/login")
     public String showLoginForm() {
-        return "admin/login"; // Tên file JSP cho trang login
+        return "admin/login"; 
     }
-
+    @GetMapping("/index") // Xử lý yêu cầu GET cho /admin/index
+    public String showIndexPage() {
+        return "admin/index"; // Trả về tên view template
+    }
     @PostMapping("/login")
     public String handleLogin(@RequestParam("username") String username,
                               @RequestParam("password") String password,

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Management</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .table-responsive { margin-top: 20px; }
+        .img-fluid { max-width: 70px; height: auto; }
+        .btn { margin-right: 5px; }
+        .alert { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-4 mb-4">Category Management</h2>
+
+        <div id="alertMessage" class="alert" role="alert"></div>
+
+        <p>
+            <button class="btn btn-success ml-auto" onclick="showCreateNewCategoryModal()">
+                <i class="fas fa-plus mr-2"></i>Thêm Category
+            </button>
+        </p>
+
+        <table class="table table-striped table-responsive">
+            <thead class="thead-inverse">
+                <tr>
+                    <th>Id</th>
+                    <th>Icon</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="categoryTableBody"></tbody>
+        </table>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4" id="pagination-controls"></ul>
+        </nav>
+
+        <div class="modal" tabindex="-1" role="dialog" id="createCategoryModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form id="addCategory" method="post" onsubmit="return false;" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Category</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="new_categoryname">Category Name</label>
+                                <input type="text" class="form-control" id="new_categoryname" name="categoryName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new_images">Icon</label>
+                                <input type="file" class="form-control" id="new_images" name="images">
+                            </div>
+                            <div class="form-group row">
+                                <div class="col text-center">
+                                    <button type="submit" class="btn btn-primary btn-block">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" tabindex="-1" role="dialog" id="updateCategoryInfoModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Category</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="far fa-address-card mr-1"></i>Category</h5>
+                            </div>
+                            <div class="card-body pb-0">
+                                <p id="updateCategoryInfoModalId"></p>
+                                <p id="updateCategoryInfoModalName"></p>
+                                <p id="updateCategoryInfoModalIcon"></p>
+                            </div>
+                        </div>
+                        <div class="card mt-2">
+                            <div class="card-header">
+                                <h5><i class="far fa-address-card mr-1"></i>Update Category</h5>
+                            </div>
+                            <div class="card-body pb-0">
+                                <form id="updateCategory" method="post" onsubmit="return false;" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="categoryName_up">Category Name</label>
+                                        <input type="text" class="form-control" id="categoryName_up" name="categoryName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="images_up">Icon</label>
+                                        <input type="file" class="form-control" id="images_up" name="images">
+                                    </div>
+                                    <input type="hidden" id="categoryID_up" name="categoryID">
+                                    <div class="form-group row">
+                                        <div class="col text-center">
+                                            <button type="submit" class="btn btn-primary btn-block">Cập nhật</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        var baseUrl = 'http://localhost:8088/api/category';
+        var currentPage = 0;
+        var pageSize = 5;
+        
+        /* Show Alert Message */
+        function showAlert(message, isSuccess) {
+            var alertBox = $('#alertMessage');
+            alertBox.text(message)
+                .removeClass('alert-success alert-danger')
+                .addClass(isSuccess ? 'alert-success' : 'alert-danger')
+                .show();
+            setTimeout(function() { alertBox.fadeOut(); }, 3000);
+        }
+
+        /* Function to fetch and display categories for a given page */
+        function loadCategories(page) {
+            $.getJSON(baseUrl + '?page=' + page + '&size=' + pageSize, function(response) {
+                if (response.status) {
+                    var categoryPage = response.body;
+                    
+                    // Render the categories in the table
+                    var tr = [];
+                    // Use .content to access the list of categories from the Page object
+                    $.each(categoryPage.content, function(i, category) {
+                        tr.push('<tr>');
+                        tr.push('<td>' + category.categoryID + '</td>');
+                        tr.push('<td><img src="' + category.images + '" style="width:70px" class="img-fluid" alt="Category Icon"></td>');
+                        tr.push('<td>' + category.categoryName + '</td>');
+                        tr.push('<td>' +
+                            '<a href="#" data-id="' + category.categoryID + '" data-name="' + category.categoryName + '" data-icon="' + category.images + '" class="btn btn-outline-warning editcate"><i class="fa fa-edit"></i></a>' +
+                            '<a href="#" data-id="' + category.categoryID + '" class="btn btn-outline-danger deletecate"><i class="fa fa-trash"></i></a>'
+                        );
+                        tr.push('</tr>');
+                    });
+                    $('#categoryTableBody').empty().append(tr.join(''));
+
+                    // Update the pagination controls
+                    updatePaginationControls(categoryPage);
+                } else {
+                    showAlert(response.message || 'Error fetching categories', false);
+                }
+            }).fail(function(xhr) {
+                showAlert('Error fetching categories: ' + xhr.responseText, false);
+            });
+        }
+
+        /* Function to generate pagination links */
+        function updatePaginationControls(categoryPage) {
+            var paginationControls = $('#pagination-controls');
+            paginationControls.empty();
+            
+            var totalPages = categoryPage.totalPages;
+            currentPage = categoryPage.number;
+
+            // "Previous" button
+            if (!categoryPage.first) {
+                paginationControls.append('<li class="page-item"><a class="page-link" href="#" data-page="' + (currentPage - 1) + '">Previous</a></li>');
+            }
+
+            // Page number buttons
+            let startPage = Math.max(0, currentPage - 2);
+            let endPage = Math.min(totalPages - 1, currentPage + 2);
+            for (let i = startPage; i <= endPage; i++) {
+                var activeClass = (i === currentPage) ? 'active' : '';
+                paginationControls.append('<li class="page-item ' + activeClass + '"><a class="page-link" href="#" data-page="' + i + '">' + (i + 1) + '</a></li>');
+            }
+
+            // "Next" button
+            if (!categoryPage.last) {
+                paginationControls.append('<li class="page-item"><a class="page-link" href="#" data-page="' + (currentPage + 1) + '">Next</a></li>');
+            }
+        }
+
+        /* Event listener for pagination button clicks */
+        $(document).on('click', '#pagination-controls a.page-link', function(e) {
+            e.preventDefault();
+            var page = $(this).data('page');
+            if (page !== undefined) {
+                loadCategories(page);
+            }
+        });
+
+        /* Initial call to load the first page of categories when the page loads */
+        $(document).ready(function() {
+            loadCategories(currentPage);
+        });
+
+        /* Add Category */
+        $("form#addCategory").submit(function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: baseUrl + '/addCategory',
+                type: 'POST',
+                dataType: "json",
+                data: formData,
+                success: function(response) {
+                    if (response.status) {
+                        $('#createCategoryModal').modal('hide');
+                        showAlert(response.message, true);
+                        loadCategories(currentPage); // Reload current page after successful add
+                    } else {
+                        showAlert(response.message, false);
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false,
+                error: function(xhr) {
+                    showAlert('Error adding category: ' + xhr.responseText, false);
+                }
+            });
+        });
+
+        function showCreateNewCategoryModal() {
+            $('#new_categoryname').val('');
+            $('#new_images').val('');
+            $('#createCategoryModal').modal('show');
+        }
+
+        /* Edit Category */
+        $(document).on('click', '.editcate', function() {
+            var categoryID = $(this).data('id');
+            var categoryName = $(this).data('name');
+            var images = $(this).data('icon');
+            showEditCategoryModal(categoryID, categoryName, images);
+        });
+
+        function showEditCategoryModal(categoryID, categoryName, images) {
+            $('#updateCategoryInfoModalId').text("Category ID: " + categoryID);
+            $('#updateCategoryInfoModalName').text("Category Name: " + categoryName);
+            $('#updateCategoryInfoModalIcon').text("Icon: " + (images || 'None'));
+            $('#categoryName_up').val(categoryName);
+            $('#categoryID_up').val(categoryID);
+            $('#images_up').val(''); // Reset file input
+            $('#updateCategoryInfoModal').modal('show');
+        }
+
+        $("form#updateCategory").submit(function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            $.ajax({
+                url: baseUrl + '/updateCategory',
+                type: 'PUT',
+                dataType: "json",
+                data: formData,
+                success: function(response) {
+                    if (response.status) {
+                        $('#updateCategoryInfoModal').modal('hide');
+                        showAlert(response.message, true);
+                        loadCategories(currentPage); // Reload current page after successful update
+                    } else {
+                        showAlert(response.message, false);
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false,
+                error: function(xhr) {
+                    showAlert('Error updating category: ' + xhr.responseText, false);
+                }
+            });
+        });
+
+        /* Delete Category */
+        $(document).on('click', '.deletecate', function() {
+            var id = $(this).data('id');
+            var parent = $(this).parent().parent();
+            if (confirm('Do you really want to delete this category?')) {
+                $.ajax({
+                    type: "DELETE",
+                    url: baseUrl + '/deleteCategory?categoryID=' + id,
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.status) {
+                            parent.fadeOut('slow', function() {
+                                $(this).remove();
+                            });
+                            showAlert(response.message, true);
+                            loadCategories(currentPage); // Reload current page after successful delete
+                        } else {
+                            showAlert(response.message, false);
+                        }
+                    },
+                    error: function(xhr) {
+                        showAlert('Error deleting category: ' + xhr.responseText, false);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

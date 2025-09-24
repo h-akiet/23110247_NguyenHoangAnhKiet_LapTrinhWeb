@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
@@ -17,6 +18,12 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     
     Page<Category> findByCategoryNameContainingIgnoreCase(String name, Pageable pageable);
     List<Category> findByCategoryNameContainingIgnoreCase(String name);
+   
+
+	Optional<Category> findByCategoryName(String name);
+
+	List<Category> findAllById(Iterable<Integer> ids);
+    
    
     
    
