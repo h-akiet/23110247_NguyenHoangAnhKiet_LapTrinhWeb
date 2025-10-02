@@ -50,7 +50,7 @@ public class LoginController {
             // 1. LƯU THÔNG TIN CẦN THIẾT VÀO SESSION (QUAN TRỌNG CHO INTERCEPTOR)
             session.setAttribute("isLoggedIn", true);
             session.setAttribute("user", user); // Lưu đối tượng User (tùy chọn)
-            session.setAttribute("userRole", role); // 👈 Interceptor sẽ đọc giá trị này
+            session.setAttribute("userRole", role); //Interceptor sẽ đọc giá trị này
 
             // 2. Chuyển hướng theo Role (Sử dụng đường dẫn đã cấu hình trong Interceptor)
             if ("ADMIN".equals(role)) {
@@ -68,12 +68,11 @@ public class LoginController {
     }
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate(); // Xóa toàn bộ Session
-        return "redirect:/login"; // Chuyển về trang đăng nhập
+        session.invalidate(); 
+        return "redirect:/login";
     }
     @GetMapping("/user/home")
     public String userHome() {
-        // Trả về file JSP: /WEB-INF/views/user/home.jsp
         return "users/userhome"; 
     }
 }
