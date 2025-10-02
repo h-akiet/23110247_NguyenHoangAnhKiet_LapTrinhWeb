@@ -58,7 +58,7 @@ public class LoginController {
                 return "redirect:/admin/categories"; 
             } else {
                 // Chuyển hướng về trang chủ User
-                return "redirect:/users/home"; 
+                return "redirect:/user/home"; 
             }
         } else {
             // Đăng nhập thất bại
@@ -71,7 +71,7 @@ public class LoginController {
         session.invalidate(); // Xóa toàn bộ Session
         return "redirect:/login"; // Chuyển về trang đăng nhập
     }
-    @GetMapping("/users/home")
+    @GetMapping("/user/home")
     public String userHome() {
         // Trả về file JSP: /WEB-INF/views/user/home.jsp
         return "users/userhome"; 
